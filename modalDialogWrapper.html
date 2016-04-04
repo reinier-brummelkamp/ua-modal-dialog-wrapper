@@ -1,0 +1,196 @@
+<link rel="import" href="../polymer/polymer.html">
+
+<dom-module id="modal-dialog-wrapper">
+    <template>
+        <style>
+            :host {
+                flex: 1;
+                display: -webkit-flex;
+                display: flex;
+                -webkit-flex-direction: column;
+                flex-direction: column;
+            }
+
+            .dialog-header {
+                min-height: 70px;
+                border: 1px solid black;
+                z-index: 50;
+                background-color: white;
+            }
+
+            .dialog-frame {
+                flex: 1;
+                display: -webkit-flex;
+                display: flex;
+                -webkit-flex-direction: row;
+                flex-direction: row;
+                z-index: 100;
+                background-color: white;
+            }
+
+            .dialog-footer {
+                min-height: 38px;
+                border: 1px solid black;
+                z-index: 25;
+                background-color: white;
+            }
+        </style>
+        <div id="dialogHeader" class="dialog-header">
+            <!-- BEGIN Dialog Header -->
+            <template is="dom-if" if="[[showHeader]]">
+                <content id="dialogHeaderContents" select=".dialog-header-contents"></content>
+            </template>
+            <!-- END Dialog Header -->
+        </div>
+        <div id="dialogFrame" class="dialog-frame">
+            <!-- BEGIN Dialog Frame Center -->
+            <template is="dom-if" if="[[dialogLoading]]">
+                <content id="dialogLoader" select=".dialog-loader"></content>
+            </template>
+            <template is="dom-if" if="[[!dialogLoading]]">
+                <content id="dialogContents" select=".dialog-contents"></content>
+            </template>
+            <!-- END Dialog Frame Center -->
+        </div>
+        <div id="dialogFooter" class="dialog-footer">
+            <!-- BEGIN Dialog Footer -->
+            <template is="dom-if" if="[[showFooter]]">
+                <content id="dialogFooterContents" select=".dialog-footer-contents"></content>
+            </template>
+            <!-- END Dialog Footer -->
+        </div>
+    </template>
+</dom-module>
+<script>
+
+    Polymer({
+
+        is: 'modal-dialog-wrapper',
+
+        properties: {
+            showHeader: {
+                type: Boolean,
+                value: true
+            },
+            showFooter: {
+                type: Boolean,
+                value: true
+            },
+            dialogLoading: {
+                type: Boolean,
+                value: false
+            },
+            dialogDataChanged: {
+                type: Boolean,
+                value: false,
+                readOnly: true
+            },
+            dialogData: {
+                type: Object,
+                reflectToAttribute: true,
+                notify: true,
+                observer: '_dialogDataChanged'
+            }
+        },
+
+        // Element Lifecycle
+        ready: function () {
+            // `ready` is called after all elements have been configured, but
+            // propagates bottom-up. This element's children are ready, but parents
+            // are not.
+            //
+            // This is the point where you should make modifications to the DOM (when
+            // necessary), or kick off any processes the element wants to perform.
+        },
+
+        attached: function () {
+            // `attached` fires once the element and its parents have been inserted
+            // into a document.
+            //
+            // This is a good place to perform any work related to your element's
+            // visual state or active behavior (measuring sizes, beginning animations,
+            // loading resources, etc).
+        },
+
+        detached: function () {
+            // The analog to `attached`, `detached` fires when the element has been
+            // removed from a document.
+            //
+            // Use this to clean up anything you did in `attached`.
+        },
+
+
+        // Element Behavior
+        _dialogDataChanged: function (newValue, OldValue) {
+            this._setDialogDataChanged(true); // TODO: This will always execute, but it's not used anywhere currently, correct anyway eventually
+        },
+
+        // BEGIN = Dialog Header functions = BEGIN //
+        dialogHeaderChildren: function () {
+            return $(Polymer.dom(this).querySelector('div.dialog-header-contents'));
+        },
+
+        showDialogHeader: function (options) {
+            $('div.dialog-header').show(options);
+        },
+
+        setAppHeaderContents: function (element) {
+            $('div.dialog-header-contents').empty();
+            $('div.dialog-header-contents').append(element);
+        },
+
+        hideAppHeader: function (options) {
+            $('div.dialog-header').hide(options);
+        },
+        // END = Dialog Header functions = END //
+
+
+
+        // BEGIN = Dialog Frame functions = BEGIN //
+        dialogChildren: function () {
+            return $(Polymer.dom(this).querySelector('div.dialog-contents'));
+        },
+
+        setDialogContents: function (element) {
+            $('div.dialog-contents').empty();
+            $('div.dialog-contents').append(element);
+        },
+        // END = Dialog Frame functions = END //
+
+
+
+        // BEGIN = Dialog Footer functions = BEGIN //
+        dialogFooterChildren: function () {
+            return $(Polymer.dom(this).querySelector('div.dialog-footer-contents'));
+        },
+
+        showDialogFooter: function (options) {
+            $('div.dialog-footer').show(options);
+        },
+
+        setDialogFooterContents: function (element) {
+            $('div.dialog-footer-contents').empty();
+            $('div.dialog-footer-contents').append(element);
+        },
+
+        hideDialogFooter: function (options) {
+            $('div.dialog-footer').hide(options);
+        },
+        // END = Dialog Footer functions = END //
+
+
+
+        // BEGIN = Eventing functions = BEGIN //
+        raiseAccept: function () {
+            this.fire('dialog-accept', {
+                dialogData: this.dialogData
+            });
+        },
+
+        raiseReject: function () {
+            this.fire('dialog-reject');
+        }
+        // BEGIN = Eventing functions = BEGIN //
+    });
+
+</script>
